@@ -15,11 +15,13 @@ Read about it online.
 """
 
 import os
+import json
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+conf_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config')
 app = Flask(__name__, template_folder=tmpl_dir)
 
 
@@ -34,7 +36,13 @@ app = Flask(__name__, template_folder=tmpl_dir)
 #
 #     DATABASEURI = "postgresql://biliris:foobar@104.196.152.219/proj1part2"
 #
-DATABASEURI = "postgresql://user:password@104.196.152.219/proj1part2"
+
+# Import login details from configuration file.
+with open(conf_dir + '/config.json') as f:
+  config = json.load(f)
+
+
+DATABASEURI = "postgresql://" + config['user'] + ":" + config['password'] + "@35.196.192.139:5432/proj1part2"
 
 
 #
