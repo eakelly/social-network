@@ -27,6 +27,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 import application.login
 import application.user_info
+import application.admin_page
 
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
@@ -229,7 +230,15 @@ def user_info(id):
   #     med_ref = c
   #   query = application.medicines.add_medicine(med_ref[0],request.form)
   #   return redirect("/medicines")
+@app.route('/admin_page/<string:id>', methods=["GET"])
+def admin_page(id):
+  if "GET" == request.method:
+    user_info_query = application.user_info.fetch_user_info(id)
+    user_info = g.conn.execute(user_info_query)
 
+    admin_page_locations_query = application.admin_page.fetch_locations()
+    admin_page_locations = g.conn.execute(admin_page_locations_query)
+    return render_template('admin_page.html', info=user_info, locations=admin_page_locations)
 
 if __name__ == "__main__":
   import click
