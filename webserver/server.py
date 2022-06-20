@@ -23,7 +23,10 @@ from flask import Flask, request, render_template, g, redirect, Response
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 conf_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config')
 app = Flask(__name__, template_folder=tmpl_dir)
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
+import application.login
+import application.user_info
 
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
@@ -183,10 +186,49 @@ def add():
   return redirect('/')
 
 
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
+@app.route('/login', methods=["GET"])
+def login_render():
+  if "GET" == request.method:
+    query = application.login.fetch_users()
+    cursor = g.conn.execute(query)
+    result = []
+    for c in cursor:
+      result.append(c)
+    return render_template("login.html", **dict(data = result))
+  # else:
+  #   query = application.login.
+  #   cursor = g.conn.execute(query)
+  #   med_ref = 0
+  #   for c in cursor:
+  #     med_ref = c
+  #   query = application.medicines.add_medicine(med_ref[0],request.form)
+  #   return redirect("/medicines")
+
+@app.route('/user_info/<string:id>', methods=["GET"])
+def user_info(id):
+  if "GET" == request.method:
+    user_info_query = application.user_info.fetch_user_info(id)
+    user_info = g.conn.execute(user_info_query)
+
+    user_friends_query = application.user_info.fetch_user_friends(id)
+    user_friends = g.conn.execute(user_friends_query)
+
+    user_posts_query = application.user_info.fetch_user_posts(id)
+    user_posts = g.conn.execute(user_posts_query)
+
+    # result = []
+    # for c in cursor:
+    #   result.append(c)
+    # return render_template("user_info.html", **dict(data = result))
+    return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts)
+  # else:
+  #   query = application.login.
+  #   cursor = g.conn.execute(query)
+  #   med_ref = 0
+  #   for c in cursor:
+  #     med_ref = c
+  #   query = application.medicines.add_medicine(med_ref[0],request.form)
+  #   return redirect("/medicines")
 
 
 if __name__ == "__main__":

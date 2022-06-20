@@ -1,0 +1,26 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+
+<body>
+  <h1>Select your account below:</h1>
+  <!-- <div>{{data}}</div> -->
+
+  <div>
+    {% for n in data %}
+    <p><a href={{"user_info/{}".format(n[0])}}>{{n}}</a></p>
+    <!-- <div>{{n[0]}}</div> -->
+    {% endfor %}
+  </div>
+
+<!-- <p><a href="another">Go to the other page</a></p> -->
+
+</body>
+
+
+</html>

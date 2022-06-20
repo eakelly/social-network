@@ -1,0 +1,53 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+
+<body>
+  <h1>User Profile</h1>
+  <p><a href="/profile">Edit Profile</a> | <a href="/logout">Logout</a></p>
+<p style="color: red;">{{error}}</p>
+<table border="1">
+    <tr>
+        <th>Name</th>
+        <th>Age</th>
+    </tr>
+    {%for i in info%}
+        <tr>
+            <td>{{i.first_name}} {{i.last_name}}</td>
+            <td>{{i.age}}</td>
+        </tr>
+    {%endfor%}
+</table>
+<h3>Friends:</h3>
+<table>
+    {%for friend in friends%}
+        <tr>
+            <td>{{friend.first_name}} {{friend.last_name}}</td>
+        </tr>
+    {%endfor%}
+</table>
+<h3>Posts</h3>
+<p>Here's what you've been saying:</p>
+<table>
+    {%for post in posts%}
+        <tr>
+            <td>{{post.id}}</td>
+            <td>{{post.content}}</td>
+        </tr>
+    {%endfor%}
+</table>
+<!-- <h3>Add new fridge:</h3> -->
+<!-- <form action="/dashboard" method="POST">
+    <label>Fridge Model</label>
+    <input type="text" name="model" />
+    <label>Nickname</label>
+    <input type="text" name="nickname" />
+    <input type="submit" value="Add" />
+</form> -->
+</body>
+</html>
