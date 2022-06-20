@@ -217,11 +217,14 @@ def user_info(id):
     user_posts_query = application.user_info.fetch_user_posts(id)
     user_posts = g.conn.execute(user_posts_query)
 
+    user_locations_query = application.user_info.fetch_user_locations(id)
+    user_locations = g.conn.execute(user_locations_query)
+
     # result = []
     # for c in cursor:
     #   result.append(c)
     # return render_template("user_info.html", **dict(data = result))
-    return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts)
+    return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations)
   # else:
   #   query = application.login.
   #   cursor = g.conn.execute(query)

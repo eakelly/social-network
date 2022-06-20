@@ -14,6 +14,10 @@ FETCH_USER_POSTS = """
     SELECT * FROM posts WHERE user_id = {user_id}
 """
 
+FETCH_USER_LOCATIONS = """
+    SELECT I.zipcode, L.country, L.state_name, L.city FROM located_in I, locations L WHERE user_id = {user_id} AND I.zipcode = L.zipcode
+"""
+
 def fetch_user_info(id):
     query = FETCH_USER_INFO
     query = query.format(user_id = id)
@@ -28,5 +32,11 @@ def fetch_user_friends(id):
 
 def fetch_user_posts(id):
     query = FETCH_USER_POSTS
+    query = query.format(user_id = id)
+    return query
+
+
+def fetch_user_locations(id):
+    query = FETCH_USER_LOCATIONS
     query = query.format(user_id = id)
     return query
