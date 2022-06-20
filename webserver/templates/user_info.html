@@ -23,6 +23,14 @@
         </tr>
     {%endfor%}
 </table>
+<h3>Places you've lived in:</h3>
+<table>
+    {%for loc in locations%}
+        <tr>
+            <td>{{loc.city}}, {{loc.state_name}}</td>
+        </tr>
+    {%endfor%}
+</table>
 <h3>Friends:</h3>
 <table>
     {%for friend in friends%}
@@ -36,8 +44,7 @@
 <table>
     {%for post in posts%}
         <tr>
-            <td>{{post.id}}</td>
-            <td>{{post.content}}</td>
+            <td>{{post.post_id}} {{post.content}}</td>
         </tr>
     {%endfor%}
 </table>
