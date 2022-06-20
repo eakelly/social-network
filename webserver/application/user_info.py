@@ -11,19 +11,22 @@ FETCH_USER_FRIENDS = """
 """
 
 FETCH_USER_POSTS = """
-    SELECT * FROM user_posts WHERE user_id = {user_id}
+    SELECT * FROM posts WHERE user_id = {user_id}
 """
 
-def fetch_user_info():
+def fetch_user_info(id):
     query = FETCH_USER_INFO
+    query = query.format(user_id = id)
     return query
 
 
-def fetch_user_friends():
+def fetch_user_friends(id):
     query = FETCH_USER_FRIENDS
+    query = query.format(user_id = id)
     return query
 
 
-def fetch_user_posts():
+def fetch_user_posts(id):
     query = FETCH_USER_POSTS
+    query = query.format(user_id = id)
     return query

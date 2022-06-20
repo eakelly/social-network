@@ -13,16 +13,12 @@
 
   <div>
     {% for n in data %}
-    <p><a href="user_profile">{{n}}</a></p>
-    <div>{{n[0]}}</div>
+    <p><a href={{"user_info/{}".format(n[0])}}>{{n}}</a></p>
+    <!-- <div>{{n[0]}}</div> -->
     {% endfor %}
   </div>
 
 <!-- <p><a href="another">Go to the other page</a></p> -->
-
-<form method="POST" action="/add">
-<p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>
-</form>
 
 </body>
 
