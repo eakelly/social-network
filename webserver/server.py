@@ -23,7 +23,9 @@ from flask import Flask, request, render_template, g, redirect, Response
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 conf_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config')
 app = Flask(__name__, template_folder=tmpl_dir)
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
+import application.login
 
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
@@ -183,10 +185,23 @@ def add():
   return redirect('/')
 
 
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
+@app.route('/login', methods=["GET"])
+def login_render():
+  if "GET" == request.method:
+    query = application.login.fetch_users()
+    cursor = g.conn.execute(query)
+    result = []
+    for c in cursor:
+      result.append(c)
+    return render_template("login.html", **dict(data = result))
+  # else:
+  #   query = application.login.
+  #   cursor = g.conn.execute(query)
+  #   med_ref = 0
+  #   for c in cursor:
+  #     med_ref = c
+  #   query = application.medicines.add_medicine(med_ref[0],request.form)
+  #   return redirect("/medicines")
 
 
 if __name__ == "__main__":
