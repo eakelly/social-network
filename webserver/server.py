@@ -28,6 +28,8 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 import application.login
 import application.user_info
 import application.admin_page
+import application.user_profile
+
 
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
@@ -220,11 +222,14 @@ def user_info(id):
     user_locations_query = application.user_info.fetch_user_locations(id)
     user_locations = g.conn.execute(user_locations_query)
 
+    user_profiles_query = application.user_info.fetch_user_profiles(id)
+    user_profiles = g.conn.execute(user_profiles_query)
+
     # result = []
     # for c in cursor:
     #   result.append(c)
     # return render_template("user_info.html", **dict(data = result))
-    return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations)
+    return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations, profiles=user_profiles)
   # else:
   #   query = application.login.
   #   cursor = g.conn.execute(query)
@@ -233,6 +238,35 @@ def user_info(id):
   #     med_ref = c
   #   query = application.medicines.add_medicine(med_ref[0],request.form)
   #   return redirect("/medicines")
+
+@app.route('/user_info/user_profile/<string:userid>/<string:profileid>', methods=["GET"])
+def user_profile(userid, profileid):
+  if "GET" == request.method:
+    user_info_query = application.user_profile.fetch_user_info(userid)
+    user_info = g.conn.execute(user_info_query)
+
+    user_profile_query = application.user_profile.fetch_profile(userid, profileid)
+    user_profile = g.conn.execute(user_profile_query)
+
+    profile_posts_query = application.user_profile.fetch_profile_posts(userid, profileid)
+    profile_posts = g.conn.execute(profile_posts_query)
+
+    # result = []
+    # for c in cursor:
+    #   result.append(c)
+    # return render_template("user_info.html", **dict(data = result))
+    return render_template('user_profile.html', info=user_info, profile=user_profile, posts=profile_posts)
+  # else:
+  #   query = application.login.
+  #   cursor = g.conn.execute(query)
+  #   med_ref = 0
+  #   for c in cursor:
+  #     med_ref = c
+  #   query = application.medicines.add_medicine(med_ref[0],request.form)
+  #   return redirect("/medicines")
+
+
+
 @app.route('/admin_page/<string:id>', methods=["GET"])
 def admin_page(id):
   if "GET" == request.method:
@@ -242,6 +276,8 @@ def admin_page(id):
     admin_page_locations_query = application.admin_page.fetch_locations()
     admin_page_locations = g.conn.execute(admin_page_locations_query)
     return render_template('admin_page.html', info=user_info, locations=admin_page_locations)
+
+
 
 if __name__ == "__main__":
   import click
