@@ -116,19 +116,35 @@ def login_render():
       userid = request.form['user_id']
       password = request.form['password']
       user = g.conn.execute("SELECT * FROM users WHERE user_id = {} AND password = '{}'".format(userid, password))
-      return redirect("/user_info/{}".format(user.first()[0]))
+      # If admin user, redirect to admin page
+      if userid == '0':
+          return redirect("/admin_page/0")
+      else:
+        return redirect("/user_info/{}".format(user.first()[0]))
+
     except Exception as e:
       print(e)
-      return render_template('index.html', error='User ID or Password is incorrect. Please try again.')
+      return render_template('index.html', error='Login Failed. User ID or Password is incorrect. Please try again.')
 
 
 @app.route('/user_info/<string:id>', methods=["GET", "POST"])
 def user_info(id):
 
+  # Check error in query string when posting a message fails
+  error = ''
+  error_msg = request.args.get('error')
+  if error_msg: error = error_msg
+
   if "POST" == request.method:
-    content = request.form['create_post']
-    profile_id = request.form['profile_id']
-    user = g.conn.execute("INSERT INTO posts(user_id, profile_id, content) VALUES ({}, {}, '{}') RETURNING user_id".format(id, profile_id, content))
+    try:
+        content = request.form['create_post']
+        profile_id = request.form['profile_id']
+        user = g.conn.execute("INSERT INTO posts(user_id, profile_id, content) VALUES ({}, {}, '{}') RETURNING user_id".format(id, profile_id, content))
+    except Exception as e:
+         print(e)
+         error = "Creating a new post failed. Try again"
+         return redirect("/user_info/{}?error={}".format(id,error));
+    return redirect("/user_info/{}".format(id));
 
   user_info_query = application.user_info.fetch_user_info(id)
   user_info = g.conn.execute(user_info_query)
@@ -144,20 +160,26 @@ def user_info(id):
 
   user_profiles_query = application.user_info.fetch_user_profiles(id)
   user_profiles = g.conn.execute(user_profiles_query)
-  
-  return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations, profiles=user_profiles)
+
+  return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations, profiles=user_profiles, error = error)
 
 
 @app.route('/edit_profile/<string:userid>/<string:profileid>', methods=["GET", "POST"])
 def edit_profile(userid, profileid):
   if "POST" == request.method:
-    bio = request.form['bio']
+    try:
+        bio = request.form['bio']
     # edit_profile_query = application.edit_profile.edit_profile_info(userid, profileid, bio)
     # edit_profile = g.conn.execute(edit_profile_query)
-    g.conn.execute("UPDATE profiles SET bio = '{}' WHERE user_id = {} AND profile_id = {}".format(bio, userid, profileid))
+        g.conn.execute("UPDATE profiles SET bio = '{}' WHERE user_id = {} AND profile_id = {}".format(bio, userid, profileid))
     # user = g.conn.execute("INSERT INTO users(first_name, middle_name, last_name, age, password) VALUES ('{}', '{}', '{}', {}, '{}') RETURNING user_id".format(first_name, middle_name, last_name, age, password))
     # return redirect("/user_info/{}/user_profile/{}/{}".format(userid, profileid))
+    except Exception as e:
+        print(e)
+        error = "Error updating profile. Try again!"
+        return render_template('edit_profile.html', user_id=userid, profile_id=profileid, error=error)
     return redirect("/user_info/user_profile/{}/{}".format(userid, profileid))
+
   return render_template('edit_profile.html', user_id=userid, profile_id=profileid)
 
 
@@ -211,7 +233,7 @@ def user_profile(userid, profileid):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # try:
+      try:
         first_name = request.form['first_name']
         middle_name = request.form['middle_name']
         last_name = request.form['last_name']
@@ -224,8 +246,11 @@ def index():
         print('user', user)
         return redirect("/user_info/{}".format(user.first()[0]))
 
-        # except Exception as e:
-        #     print(e)
+      except Exception as e:
+           print(e)
+           error = "Error in sign up. Ensure to fill in all the required values and note that you must be 13years or above !"
+           return render_template('index.html', error = error);
+
         #     # g.conn.rollback()
         #     return render_template('index.html', error='Server encountered an error. Please try again later.')
     else:
