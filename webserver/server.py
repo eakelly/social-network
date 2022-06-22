@@ -235,7 +235,7 @@ def index():
 
       except Exception as e:
            print(e)
-           error = "Error in sign up. Ensure to fill in all the required values and note that you must be 16years or above !"
+           error = "Error in sign up. Ensure to fill in all the required values and note that you must be 13years or above !"
            return render_template('index.html', error = error);
 
         #     # g.conn.rollback()
