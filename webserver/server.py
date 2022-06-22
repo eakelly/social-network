@@ -16,14 +16,21 @@ Read about it online.
 
 import os
 import json
+# from app import app, db, login_manager
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
+from flask_login import current_user, login_user, logout_user, login_required, LoginManager
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 conf_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config')
 app = Flask(__name__, template_folder=tmpl_dir)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+# login_manager = LoginManager()
+# login_manager.init_app(app)
+# login_manager.login_view = "/login"
+# login_manager.session_protection = "strong"
 
 import application.login
 import application.user_info
@@ -94,80 +101,6 @@ def teardown_request(exception):
   except Exception as e:
     pass
 
-
-#
-# @app.route is a decorator around index() that means:
-#   run index() whenever the user tries to access the "/" path using a GET request
-#
-# If you wanted the user to go to, for example, localhost:8111/foobar/ with POST or GET then you could use:
-#
-#       @app.route("/foobar/", methods=["POST", "GET"])
-#
-# PROTIP: (the trailing / in the path is important)
-# 
-# see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
-# see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
-#
-@app.route('/')
-def index():
-  """
-  request is a special object that Flask provides to access web request information:
-
-  request.method:   "GET" or "POST"
-  request.form:     if the browser submitted a form, this contains the data in the form
-  request.args:     dictionary of URL arguments, e.g., {a:1, b:2} for http://localhost?a=1&b=2
-
-  See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
-  """
-
-  # DEBUG: this is debugging code to see what request looks like
-  print(request.args)
-
-
-  #
-  # example of a database query
-  #
-  cursor = g.conn.execute("SELECT name FROM test")
-  names = []
-  for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
-  cursor.close()
-
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
-  # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be 
-  # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #     
-  #     # creates a <div> tag for each element in data
-  #     # will print: 
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
-  context = dict(data = names)
-
-
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
-  return render_template("index.html", **context)
-
 #
 # This is an example of a different path.  You can see it at:
 # 
@@ -189,7 +122,7 @@ def add():
   return redirect('/')
 
 
-@app.route('/login', methods=["GET"])
+@app.route('/login', methods=["GET", 'POST'])
 def login_render():
   if "GET" == request.method:
     query = application.login.fetch_users()
@@ -198,14 +131,16 @@ def login_render():
     for c in cursor:
       result.append(c)
     return render_template("login.html", **dict(data = result))
-  # else:
-  #   query = application.login.
-  #   cursor = g.conn.execute(query)
-  #   med_ref = 0
-  #   for c in cursor:
-  #     med_ref = c
-  #   query = application.medicines.add_medicine(med_ref[0],request.form)
-  #   return redirect("/medicines")
+  else:
+    try:
+      userid = request.form['user_id']
+      password = request.form['password']
+      user = g.conn.execute("SELECT * FROM users WHERE user_id = {} AND password = '{}'".format(userid, password))
+      return redirect("/user_info/{}".format(user.first()[0]))
+    except Exception as e:
+      print(e)
+      return render_template('index.html', error='User ID or Password is incorrect. Please try again.')
+
 
 @app.route('/user_info/<string:id>', methods=["GET"])
 def user_info(id):
@@ -225,19 +160,8 @@ def user_info(id):
     user_profiles_query = application.user_info.fetch_user_profiles(id)
     user_profiles = g.conn.execute(user_profiles_query)
 
-    # result = []
-    # for c in cursor:
-    #   result.append(c)
-    # return render_template("user_info.html", **dict(data = result))
     return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations, profiles=user_profiles)
-  # else:
-  #   query = application.login.
-  #   cursor = g.conn.execute(query)
-  #   med_ref = 0
-  #   for c in cursor:
-  #     med_ref = c
-  #   query = application.medicines.add_medicine(med_ref[0],request.form)
-  #   return redirect("/medicines")
+
 
 @app.route('/user_info/user_profile/<string:userid>/<string:profileid>', methods=["GET"])
 def user_profile(userid, profileid):
@@ -251,10 +175,6 @@ def user_profile(userid, profileid):
     profile_posts_query = application.user_profile.fetch_profile_posts(userid, profileid)
     profile_posts = g.conn.execute(profile_posts_query)
 
-    # result = []
-    # for c in cursor:
-    #   result.append(c)
-    # return render_template("user_info.html", **dict(data = result))
     return render_template('user_profile.html', info=user_info, profile=user_profile, posts=profile_posts)
   # else:
   #   query = application.login.
@@ -265,6 +185,61 @@ def user_profile(userid, profileid):
   #   query = application.medicines.add_medicine(med_ref[0],request.form)
   #   return redirect("/medicines")
 
+
+# @app.route('/register', methods=['POST'])
+# def add():
+#   name = request.form['name']
+#   g.conn.execute('INSERT INTO test VALUES (NULL, ?)', name)
+#   return redirect('/')
+
+
+# @app.route("/login", methods=['GET', 'POST'])
+# def login():
+#     if request.method == 'POST':
+#         try:
+#             username = request.form['user id']
+#             password = request.form['password']
+#             print(username, password)
+#             if not current_user.is_authenticated:
+#                 user = FridgeUser.get(loginid=username)
+#                 print(user)
+#                 if user and password == user.password:
+#                     login_user(user, remember=True)
+#                 else:
+#                     return render_template('login.html', error='Username or password incorrect!')
+        
+#         except Exception as e:
+#             print(e)
+#             return render_template('login.html', error='Server encountered an error. Please try again later.')
+
+#     if current_user.is_authenticated:
+#         return redirect("/dashboard")
+#     else:
+#         return render_template('login.html')
+
+# @app.route("/register", methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        # try:
+        first_name = request.form['first_name']
+        middle_name = request.form['middle_name']
+        last_name = request.form['last_name']
+        age = request.form['age']
+        password = request.form['password']
+
+        user = g.conn.execute("INSERT INTO users(first_name, middle_name, last_name, age, password) VALUES ('{}', '{}', '{}', {}, '{}') RETURNING user_id".format(first_name, middle_name, last_name, age, password))
+        # db.session.execute("INSERT INTO login(uid, loginid, password) VALUES ({}, '{}', '{}')".format(user.first()[0], loginid, password))
+        # g.conn.commit()
+        print('user', user)
+        return redirect("/user_info/{}".format(user.first()[0]))
+
+        # except Exception as e:
+        #     print(e)
+        #     # g.conn.rollback()
+        #     return render_template('index.html', error='Server encountered an error. Please try again later.')
+    else:
+        return render_template('index.html')
 
 
 @app.route('/admin_page/<string:id>', methods=["GET"])
