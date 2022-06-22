@@ -148,16 +148,17 @@ def user_info(id):
   return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations, profiles=user_profiles)
 
 
-@app.route('/user_info/user_profile/<string:userid>/<string:profileid>/edit_profile', methods=["POST"])
+@app.route('/edit_profile/<string:userid>/<string:profileid>', methods=["GET", "POST"])
 def edit_profile(userid, profileid):
   if "POST" == request.method:
     bio = request.form['bio']
     # edit_profile_query = application.edit_profile.edit_profile_info(userid, profileid, bio)
     # edit_profile = g.conn.execute(edit_profile_query)
-    g.conn.execute("UPDATE proile SET bio = {} WHERE user_id = {} AND profile_id = {}".format(bio, userid, profileid))
+    g.conn.execute("UPDATE profiles SET bio = '{}' WHERE user_id = {} AND profile_id = {}".format(bio, userid, profileid))
     # user = g.conn.execute("INSERT INTO users(first_name, middle_name, last_name, age, password) VALUES ('{}', '{}', '{}', {}, '{}') RETURNING user_id".format(first_name, middle_name, last_name, age, password))
     # return redirect("/user_info/{}/user_profile/{}/{}".format(userid, profileid))
-    return render_template('edit_profile.html', update_info=bio, user_id=userid, profile_id=profileid)
+    return redirect("/user_info/user_profile/{}/{}".format(userid, profileid))
+  return render_template('edit_profile.html', user_id=userid, profile_id=profileid)
 
 
 @app.route('/user_info/user_profile/<string:userid>/<string:profileid>', methods=["GET"])

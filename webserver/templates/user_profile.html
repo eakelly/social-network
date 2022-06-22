@@ -9,7 +9,9 @@
 
 <body>
   <h1>User Profile</h1>
-  <p><a href="edit_profile">Edit Profile</a> | <a href="/logout">Logout</a></p>
+  {%for p in profile%}
+   <p><a href={{"/edit_profile/{}/{}".format(p.user_id,p.profile_id)}}>Edit Profile</a> | <a href="/logout">Logout</a></p>
+  {%endfor%}
 <p style="color: red;">{{error}}</p>
 <table border="1">
     <tr>
