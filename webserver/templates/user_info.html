@@ -10,6 +10,7 @@
 <body>
   <h1>User Info</h1>
 <p style="color: red;">{{error}}</p>
+<a href="/">Logout</a></p>
 <table border="1">
     <tr>
         <th>Name</th>
@@ -50,23 +51,23 @@
 </table>
 <h3>Posts</h3>
 <form method="POST" action="">
-    <p>Create post info.user_id {{info.user_id}}:<br />
-      <label for="create_post">What's on your mind?</label><input type="text" value="" name="create_post"><br />
-      <label for="profile_id">Where do you want this post?</label><input type="text" value="" name="profile_id"><br />
+    <p>Create a new post :<br />
+      <label for="create_post">What's on your mind? *</label><input type="text" value="" name="create_post"><br />
+      <label for="profile_id">Which profile id do you like this posted? *</label><input type="text" value="" name="profile_id"><br />
       <input type="submit" value="Post"></p>
   </form>
 
-<p>Here's what you've been saying:</p>
+<p>Here's all your posts from all your profiles:</p>
 <table border="1">
     <tr>
-        <th>Id</th>
+        <th>Profile Id</th>
         <th>Content</th>
     </tr>
     {%for post in posts%}
         <tr>
-		<td>{{post.post_id}}</td>
+		<td>{{post.profile_id}}</td>
 		<td>{{post.content}}</td>
-		<td><a href={{"/edit_post?post_id={}&user_id={}".format(post.post_id,post.user_id)}}>Edit</a> <a href={{"/delete_post?post_id={}&user_id={}".format(post.post_id,post.user_id)}}>Delete</a></td>
+		<td><a href={{"/delete_post?post_id={}&user_id={}".format(post.post_id,post.user_id)}}>Delete</a></td>
         </tr>
     {%endfor%}
 </table>

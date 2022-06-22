@@ -119,16 +119,20 @@ def login_render():
       return redirect("/user_info/{}".format(user.first()[0]))
     except Exception as e:
       print(e)
-      return render_template('index.html', error='User ID or Password is incorrect. Please try again.')
+      return render_template('index.html', error='Login Failed. User ID or Password is incorrect. Please try again.')
 
 
 @app.route('/user_info/<string:id>', methods=["GET", "POST"])
 def user_info(id):
 
   if "POST" == request.method:
-    content = request.form['create_post']
-    profile_id = request.form['profile_id']
-    user = g.conn.execute("INSERT INTO posts(user_id, profile_id, content) VALUES ({}, {}, '{}') RETURNING user_id".format(id, profile_id, content))
+    try:
+        content = request.form['create_post']
+        profile_id = request.form['profile_id']
+        user = g.conn.execute("INSERT INTO posts(user_id, profile_id, content) VALUES ({}, {}, '{}') RETURNING user_id".format(id, profile_id, content))
+    except Exception as e:
+         print(e)
+         return redirect("/user_info/{}".format(id));
 
   user_info_query = application.user_info.fetch_user_info(id)
   user_info = g.conn.execute(user_info_query)
@@ -211,7 +215,7 @@ def user_profile(userid, profileid):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # try:
+      try:
         first_name = request.form['first_name']
         middle_name = request.form['middle_name']
         last_name = request.form['last_name']
@@ -224,8 +228,11 @@ def index():
         print('user', user)
         return redirect("/user_info/{}".format(user.first()[0]))
 
-        # except Exception as e:
-        #     print(e)
+      except Exception as e:
+           print(e)
+           error = "Error in sign up. Ensure to fill in all the required values and note that you must be 16years or above !"
+           return render_template('index.html', error = error);
+
         #     # g.conn.rollback()
         #     return render_template('index.html', error='Server encountered an error. Please try again later.')
     else:
