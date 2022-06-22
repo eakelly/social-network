@@ -8,20 +8,24 @@
 
 
 <body>
-  <h1>Select your account below:</h1>
+  <h1>Sign in:</h1>
   <!-- <div>{{data}}</div> -->
 
-  <div>
-    {% for n in data %}
+  <form method="POST" action="/login">
+      <label for="user_id">User ID:</label><input type="text" value="" name="user_id"><br />
+      <label for="password">Password :</label><input type="text" value="" name="password"><br />
+      <input type="submit" value="Log In"></p>
+  </form>
+  <!-- <div> -->
     <!-- ToDo: Update to "admin" user once created in the DB -->
+    <!-- {% for n in data %}
     {%if n[0] == 0%}
-    <p><a href={{"admin_page/{}".format(n[0])}}>{{n}}</a></p>
+    <p><a href={{"admin_page/{}".format(n[0])}}>{{n[0]}} {{n[1]}} {{n[2]}}</a></p>
     {% else %}
-    <p><a href={{"user_info/{}".format(n[0])}}>{{n}}</a></p>
+    <p><a href={{"user_info/{}".format(n[0])}}>{{n[0]}} {{n[1]}} {{n[2]}}</a></p>
     {% endif %}
-    <!-- <div>{{n[0]}}</div> -->
-    {% endfor %}
-  </div>
+    {% endfor %} -->
+  <!-- </div> -->
 
 <!-- <p><a href="another">Go to the other page</a></p> -->
 
