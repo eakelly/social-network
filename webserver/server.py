@@ -130,6 +130,11 @@ def login_render():
 @app.route('/user_info/<string:id>', methods=["GET", "POST"])
 def user_info(id):
 
+  # Check error in query string when posting a message fails
+  error = ''
+  error_msg = request.args.get('error')
+  if error_msg: error = error_msg
+
   if "POST" == request.method:
     try:
         content = request.form['create_post']
@@ -137,7 +142,9 @@ def user_info(id):
         user = g.conn.execute("INSERT INTO posts(user_id, profile_id, content) VALUES ({}, {}, '{}') RETURNING user_id".format(id, profile_id, content))
     except Exception as e:
          print(e)
-         return redirect("/user_info/{}".format(id));
+         error = "Creating a new post failed. Try again"
+         return redirect("/user_info/{}?error={}".format(id,error));
+    return redirect("/user_info/{}".format(id));
 
   user_info_query = application.user_info.fetch_user_info(id)
   user_info = g.conn.execute(user_info_query)
@@ -154,7 +161,7 @@ def user_info(id):
   user_profiles_query = application.user_info.fetch_user_profiles(id)
   user_profiles = g.conn.execute(user_profiles_query)
 
-  return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations, profiles=user_profiles)
+  return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations, profiles=user_profiles, error = error)
 
 
 @app.route('/edit_profile/<string:userid>/<string:profileid>', methods=["GET", "POST"])
