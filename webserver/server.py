@@ -278,6 +278,32 @@ def admin_page(id):
     return render_template('admin_page.html', info=user_info, locations=admin_page_locations)
 
 
+@app.route("/delete_post", methods=['GET'])
+# Todo: @login_required
+def delete():
+    post_id = request.args.get('post_id', None)
+    user_id = request.args.get('user_id', None)
+    if post_id == None:
+        return redirect("/user_info")
+
+# Todo: make sure the post belongs to the current user once current_user.id and login_required are implemented
+#    fridgeUser = db.session.execute("SELECT * from fridge where uid={} and fid={}".format(current_user.id, fid)).all()
+#    if len(fridgeUser) == 0:
+#        return redirect("/dashboard")
+
+    try:
+        query = text("DELETE from posts where post_id={} and user_id={};".format(post_id, user_id))
+        g.conn.execute(query)
+        #Todo: implement logging query = "INSERT INTO log(fid, message) VALUES ({}, '{}')".format(fid, "User deleted a item in fridge {}: {}".format(fid, conid))
+        #db.session.execute(query)
+        #db.session.commit()
+    except Exception as e:
+        print(e)
+    #    db.session.rollback()
+
+    return redirect("/user_info/{}".format(user_id))
+
+
 
 if __name__ == "__main__":
   import click
