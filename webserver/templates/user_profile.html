@@ -9,7 +9,9 @@
 
 <body>
   <h1>User Profile</h1>
+  <h3>Bio</h3>
   {%for p in profile%}
+  <p>{{p.bio}}</p>
    <p><a href={{"/edit_profile/{}/{}".format(p.user_id,p.profile_id)}}>Edit Profile</a> | <a href="/logout">Logout</a></p>
   {%endfor%}
 <p style="color: red;">{{error}}</p>
@@ -22,14 +24,6 @@
         <tr>
             <td>{{i.first_name}} {{i.last_name}}</td>
             <td>{{i.age}}</td>
-        </tr>
-    {%endfor%}
-</table>
-<h3>Bio</h3>
-<table>
-    {%for p in profile%}
-        <tr>
-            <td>{{p.bio}}</td>
         </tr>
     {%endfor%}
 </table>
