@@ -167,13 +167,19 @@ def user_info(id):
 @app.route('/edit_profile/<string:userid>/<string:profileid>', methods=["GET", "POST"])
 def edit_profile(userid, profileid):
   if "POST" == request.method:
-    bio = request.form['bio']
+    try:
+        bio = request.form['bio']
     # edit_profile_query = application.edit_profile.edit_profile_info(userid, profileid, bio)
     # edit_profile = g.conn.execute(edit_profile_query)
-    g.conn.execute("UPDATE profiles SET bio = '{}' WHERE user_id = {} AND profile_id = {}".format(bio, userid, profileid))
+        g.conn.execute("UPDATE profiles SET bio = '{}' WHERE user_id = {} AND profile_id = {}".format(bio, userid, profileid))
     # user = g.conn.execute("INSERT INTO users(first_name, middle_name, last_name, age, password) VALUES ('{}', '{}', '{}', {}, '{}') RETURNING user_id".format(first_name, middle_name, last_name, age, password))
     # return redirect("/user_info/{}/user_profile/{}/{}".format(userid, profileid))
+    except Exception as e:
+        print(e)
+        error = "Error updating profile. Try again!"
+        return render_template('edit_profile.html', user_id=userid, profile_id=profileid, error=error)
     return redirect("/user_info/user_profile/{}/{}".format(userid, profileid))
+
   return render_template('edit_profile.html', user_id=userid, profile_id=profileid)
 
 
