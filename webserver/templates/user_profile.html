@@ -12,7 +12,7 @@
   <h3>Bio</h3>
   {%for p in profile%}
   <p>{{p.bio}}</p>
-   <p><a href={{"/edit_profile/{}/{}".format(p.user_id,p.profile_id)}}>Edit Profile</a> | <a href="/logout">Logout</a></p>
+  <p><a href={{"/user_info/{}".format(p.user_id)}}>Back</a>|<a href={{"/edit_profile/{}/{}".format(p.user_id,p.profile_id)}}>Edit Profile</a> | <a href="/">Logout</a></p>
   {%endfor%}
 <p style="color: red;">{{error}}</p>
 <table border="1">

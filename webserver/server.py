@@ -116,7 +116,12 @@ def login_render():
       userid = request.form['user_id']
       password = request.form['password']
       user = g.conn.execute("SELECT * FROM users WHERE user_id = {} AND password = '{}'".format(userid, password))
-      return redirect("/user_info/{}".format(user.first()[0]))
+      # If admin user, redirect to admin page
+      if userid == '0':
+          return redirect("/admin_page/0")
+      else:
+        return redirect("/user_info/{}".format(user.first()[0]))
+
     except Exception as e:
       print(e)
       return render_template('index.html', error='Login Failed. User ID or Password is incorrect. Please try again.')
@@ -148,7 +153,7 @@ def user_info(id):
 
   user_profiles_query = application.user_info.fetch_user_profiles(id)
   user_profiles = g.conn.execute(user_profiles_query)
-  
+
   return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations, profiles=user_profiles)
 
 
