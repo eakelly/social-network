@@ -36,27 +36,14 @@ import application.login
 import application.user_info
 import application.admin_page
 import application.user_profile
+import application.edit_profile
 
 
-#
-# The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
-#
-# XXX: The URI should be in the format of: 
-#
-#     postgresql://USER:PASSWORD@104.196.152.219/proj1part2
-#
-# For example, if you had username biliris and password foobar, then the following line would be:
-#
-#     DATABASEURI = "postgresql://biliris:foobar@104.196.152.219/proj1part2"
-#
-
-# Import login details from configuration file.
 with open(conf_dir + '/config.json') as f:
   config = json.load(f)
 
 
 DATABASEURI = "postgresql://" + config['user'] + ":" + config['password'] + "@35.196.192.139:5432/proj1part2"
-
 
 #
 # This line creates a database engine that knows how to connect to the URI above.
@@ -101,14 +88,7 @@ def teardown_request(exception):
   except Exception as e:
     pass
 
-#
-# This is an example of a different path.  You can see it at:
-# 
-#     localhost:8111/another
-#
-# Notice that the function name is another() rather than index()
-# The functions for each app.route need to have different names
-#
+
 @app.route('/another')
 def another():
   return render_template("another.html")
@@ -168,6 +148,19 @@ def user_info(id):
   return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations, profiles=user_profiles)
 
 
+@app.route('/edit_profile/<string:userid>/<string:profileid>', methods=["GET", "POST"])
+def edit_profile(userid, profileid):
+  if "POST" == request.method:
+    bio = request.form['bio']
+    # edit_profile_query = application.edit_profile.edit_profile_info(userid, profileid, bio)
+    # edit_profile = g.conn.execute(edit_profile_query)
+    g.conn.execute("UPDATE profiles SET bio = '{}' WHERE user_id = {} AND profile_id = {}".format(bio, userid, profileid))
+    # user = g.conn.execute("INSERT INTO users(first_name, middle_name, last_name, age, password) VALUES ('{}', '{}', '{}', {}, '{}') RETURNING user_id".format(first_name, middle_name, last_name, age, password))
+    # return redirect("/user_info/{}/user_profile/{}/{}".format(userid, profileid))
+    return redirect("/user_info/user_profile/{}/{}".format(userid, profileid))
+  return render_template('edit_profile.html', user_id=userid, profile_id=profileid)
+
+
 @app.route('/user_info/user_profile/<string:userid>/<string:profileid>', methods=["GET"])
 def user_profile(userid, profileid):
   if "GET" == request.method:
@@ -181,14 +174,6 @@ def user_profile(userid, profileid):
     profile_posts = g.conn.execute(profile_posts_query)
 
     return render_template('user_profile.html', info=user_info, profile=user_profile, posts=profile_posts)
-  # else:
-  #   query = application.login.
-  #   cursor = g.conn.execute(query)
-  #   med_ref = 0
-  #   for c in cursor:
-  #     med_ref = c
-  #   query = application.medicines.add_medicine(med_ref[0],request.form)
-  #   return redirect("/medicines")
 
 
 # @app.route('/register', methods=['POST'])

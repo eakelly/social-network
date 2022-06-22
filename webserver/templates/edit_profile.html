@@ -1,0 +1,22 @@
+
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+
+<body>
+	<p><a href={{"/user_info/user_profile/{}/{}".format(user_id,profile_id)}}>Back</a>
+	<form method="POST" action={{"/edit_profile/{}/{}".format(user_id,profile_id)}}>
+  <p>Edit your profile:<br />
+    <label for="bio">Bio:</label><input type="text" value="" name="bio"><br />
+    <input type="submit" value="Submit changes"></p>
+</form>
+
+</body>
+
+
+</html>
