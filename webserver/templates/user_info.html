@@ -49,6 +49,13 @@
     {%endfor%}
 </table>
 <h3>Posts</h3>
+<form method="POST" action="">
+    <p>Create post info.user_id {{info.user_id}}:<br />
+      <label for="create_post">What's on your mind?</label><input type="text" value="" name="create_post"><br />
+      <label for="profile_id">Where do you want this post?</label><input type="text" value="" name="profile_id"><br />
+      <input type="submit" value="Post"></p>
+  </form>
+
 <p>Here's what you've been saying:</p>
 <table border="1">
     <tr>

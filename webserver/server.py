@@ -142,25 +142,30 @@ def login_render():
       return render_template('index.html', error='User ID or Password is incorrect. Please try again.')
 
 
-@app.route('/user_info/<string:id>', methods=["GET"])
+@app.route('/user_info/<string:id>', methods=["GET", "POST"])
 def user_info(id):
-  if "GET" == request.method:
-    user_info_query = application.user_info.fetch_user_info(id)
-    user_info = g.conn.execute(user_info_query)
 
-    user_friends_query = application.user_info.fetch_user_friends(id)
-    user_friends = g.conn.execute(user_friends_query)
+  if "POST" == request.method:
+    content = request.form['create_post']
+    profile_id = request.form['profile_id']
+    user = g.conn.execute("INSERT INTO posts(user_id, profile_id, content) VALUES ({}, {}, '{}') RETURNING user_id".format(id, profile_id, content))
 
-    user_posts_query = application.user_info.fetch_user_posts(id)
-    user_posts = g.conn.execute(user_posts_query)
+  user_info_query = application.user_info.fetch_user_info(id)
+  user_info = g.conn.execute(user_info_query)
 
-    user_locations_query = application.user_info.fetch_user_locations(id)
-    user_locations = g.conn.execute(user_locations_query)
+  user_friends_query = application.user_info.fetch_user_friends(id)
+  user_friends = g.conn.execute(user_friends_query)
 
-    user_profiles_query = application.user_info.fetch_user_profiles(id)
-    user_profiles = g.conn.execute(user_profiles_query)
+  user_posts_query = application.user_info.fetch_user_posts(id)
+  user_posts = g.conn.execute(user_posts_query)
 
-    return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations, profiles=user_profiles)
+  user_locations_query = application.user_info.fetch_user_locations(id)
+  user_locations = g.conn.execute(user_locations_query)
+
+  user_profiles_query = application.user_info.fetch_user_profiles(id)
+  user_profiles = g.conn.execute(user_profiles_query)
+  
+  return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations, profiles=user_profiles)
 
 
 @app.route('/user_info/user_profile/<string:userid>/<string:profileid>', methods=["GET"])
