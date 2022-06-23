@@ -15,11 +15,13 @@
     <tr>
         <th>Name</th>
         <th>Age</th>
+        <th>User ID</th>
     </tr>
     {%for i in info%}
         <tr>
             <td>{{i.first_name}} {{i.last_name}}</td>
             <td>{{i.age}}</td>
+            <td>{{i.user_id}}</td>
         </tr>
     {%endfor%}
 </table>

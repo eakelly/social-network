@@ -20,7 +20,7 @@ FETCH_USER_LOCATIONS = """
 """
 
 FETCH_USER_PROFILES = """
-    SELECT * FROM profiles WHERE user_id = :id
+    SELECT * FROM profiles WHERE user_id = :id ORDER BY profile_id
 """
 
 def fetch_user_info(id):
