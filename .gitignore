@@ -1,1 +1,2 @@
-webserver/config/config.json
+config/config.json
+application/__pycache__
