@@ -10,7 +10,8 @@
 <body>
   <h1>Administrator's Page</h1>
   <p><a href="/">Logout</a></p>
-<p style="color: red;">{{error}}</p>
+  <p style="color: red;">{{error}}</p>
+
 <table border="1">
     <tr>
         <th>Admin Name</th>
@@ -23,7 +24,8 @@
         </tr>
     {%endfor%}
 </table>
-<h3>Listed Locations</h3>
+
+<p>All Listed Locations</p>
 <table border="1">
     <tr>
         <th>Country</th>
@@ -31,17 +33,44 @@
         <th>StateName</th>
         <th>City</th>
     </tr>
-    {%for location in locations%}
+    {%for loc in locations%}
         <tr>
-            <td>{{location.country}}</td>
-            <td>{{location.zipcode}}</td>
-            <td>{{location.state_name}}</td>
-            <td>{{location.city}}</td>
+            <td>{{loc.country}}</td>
+            <td>{{loc.zipcode}}</td>
+            <td>{{loc.state_name}}</td>
+            <td>{{loc.city}}</td>
         </tr>
     {%endfor%}
 </table>
-<h3>Social Network Statistics</h3>
-<p>Average age of friends for all users:</p>
+
+<h2>Social Network Statistics</h2>
+<h3 style="color: blue;">1. Select a location from the dropdown below to see all users from that state:</h3>
+<form action={{"/admin_page/0"}} method="POST">
+	<select name="state_name" id="state_name">
+		{%for state in all_states%}
+		<option value='{{state.state_name}}'>{{state.state_name}}</option>
+		{%endfor%}
+	</select>
+	<input type="submit" name="submit" id="submit"/>
+</form>
+
+{%if filter.state != "none"%}
+<p>Filtered users by state:{{filter.state}}</p>
+<table border="1">
+    <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+    </tr>
+    {%for users in filter.users%}
+        <tr>
+            <td>{{users[0]}}</td>
+	    <td>{{users[1]}}</td>
+        </tr>
+    {%endfor%}
+</table>
+{%endif%}
+
+<h3>2. Average age of friends for all users:</h3>
 <table border="1">
     <tr>
         <th>User</th>
@@ -54,7 +83,7 @@
         </tr>
     {%endfor%}
 </table>
-<p>Post averages for users over 30 years old and 30 years old or younger:</p>
+<h3>3. Post averages for users over 30 years old and 30 years old or younger:</h3>
 <table border="1">
     <tr>
       <th>Users over 30 years old</th>

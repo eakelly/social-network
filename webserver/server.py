@@ -257,23 +257,43 @@ def index():
         return render_template('index.html')
 
 
-@app.route('/admin_page/<string:id>', methods=["GET"])
+@app.route('/admin_page/<string:id>', methods=["GET", "POST"])
 def admin_page(id):
-  if "GET" == request.method:
-    user_info_query = application.user_info.fetch_user_info(id)
-    user_info = g.conn.execute(user_info_query)
 
-    admin_page_locations_query = application.admin_page.fetch_locations()
-    admin_page_locations = g.conn.execute(admin_page_locations_query)
+  filter = {"state":"none", "users":[]}
+  try:
+      if "POST" == request.method:
+          input_state  = request.form['state_name']
+          query =  text("SELECT U.first_name, U.last_name  \
+                          FROM Users U,(SELECT I.user_id \
+                                        FROM located_in I, locations L \
+                                        WHERE I.zipcode = L.zipcode \
+                                              AND L.state_name = '{}')\
+                                        AS state_users \
+                          WHERE state_users.user_id = U.user_id; \
+                          ".format(input_state))
+          cursor = g.conn.execute(query)
+          for c in cursor:
+              filter["users"].append(c)
+          filter["state"] = input_state
+  except Exception as e:
+        print(e)
 
-    avg_age_of_friends_query = application.admin_page.get_avg_age_of_friends()
-    avg_age_of_friends = g.conn.execute(avg_age_of_friends_query)
+  user_info_query = application.user_info.fetch_user_info(id)
+  user_info = g.conn.execute(user_info_query)
 
-    post_stats_query = application.admin_page.get_post_stats()
-    post_stats = g.conn.execute(post_stats_query)
+  admin_page_locations_query = application.admin_page.fetch_locations()
+  admin_page_locations = g.conn.execute(admin_page_locations_query)
 
-    return render_template('admin_page.html', info=user_info, locations=admin_page_locations, avg_age_of_friends=avg_age_of_friends, post_stats=post_stats)
+  avg_age_of_friends_query = application.admin_page.get_avg_age_of_friends()
+  avg_age_of_friends = g.conn.execute(avg_age_of_friends_query)
 
+  post_stats_query = application.admin_page.get_post_stats()
+  post_stats = g.conn.execute(post_stats_query)
+
+  all_states = g.conn.execute("SELECT DISTINCT state_name from locations;")
+
+  return render_template('admin_page.html', info=user_info, locations=admin_page_locations, avg_age_of_friends=avg_age_of_friends, post_stats=post_stats, all_states=all_states, filter=filter)
 
 @app.route("/delete_post", methods=['GET'])
 # Todo: @login_required
