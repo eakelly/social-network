@@ -1,1 +1,4 @@
 webserver/config/config.json
+webserver/._.
+*.DS_Store
+application/__pycache__/
