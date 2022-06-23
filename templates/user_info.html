@@ -45,7 +45,6 @@
     {%for profile in profiles%}
         <tr>
             <td>{{profile.profile_id}}. <a href={{"user_profile/{}/{}".format(profile.user_id,profile.profile_id)}}> Profile {{profile.profile_id}}</a></td>
-            <!-- <td>{{profile.profile_id}}. Profile {{profile.profile_id}}</td> -->
         </tr>
     {%endfor%}
 </table>
@@ -71,15 +70,5 @@
         </tr>
     {%endfor%}
 </table>
-
-
-<!-- <h3>Add new fridge:</h3> -->
-<!-- <form action="/dashboard" method="POST">
-    <label>Fridge Model</label>
-    <input type="text" name="model" />
-    <label>Nickname</label>
-    <input type="text" name="nickname" />
-    <input type="submit" value="Add" />
-</form> -->
 </body>
 </html>
