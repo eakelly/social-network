@@ -205,8 +205,9 @@ def admin_page(id):
   except Exception as e:
         print(e)
 
-  user_info_query = application.user_info.fetch_user_info(id)
-  user_info = g.conn.execute(user_info_query)
+
+  user_info_query = text("SELECT * from users WHERE user_id = :uid")
+  user_info = g.conn.execute(user_info_query,uid=id)
 
   admin_page_locations_query = application.admin_page.fetch_locations()
   admin_page_locations = g.conn.execute(admin_page_locations_query)
