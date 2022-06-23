@@ -27,11 +27,6 @@ conf_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config')
 app = Flask(__name__, template_folder=tmpl_dir)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
-# login_manager = LoginManager()
-# login_manager.init_app(app)
-# login_manager.login_view = "/login"
-# login_manager.session_protection = "strong"
-
 import application.login
 import application.user_info
 import application.admin_page
@@ -45,21 +40,7 @@ with open(conf_dir + '/config.json') as f:
 
 DATABASEURI = "postgresql://" + config['user'] + ":" + config['password'] + "@35.196.192.139:5432/proj1part2"
 
-#
-# This line creates a database engine that knows how to connect to the URI above.
-#
 engine = create_engine(DATABASEURI)
-
-#
-# Example of running queries in your database
-# Note that this will probably not work if you already have a table named 'test' in your database, containing meaningful data. This is only an example showing you how to run queries in your database using SQLAlchemy.
-#
-engine.execute("""CREATE TABLE IF NOT EXISTS test (
-  id serial,
-  name text
-);""")
-engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
-
 
 @app.before_request
 def before_request():
@@ -87,19 +68,6 @@ def teardown_request(exception):
     g.conn.close()
   except Exception as e:
     pass
-
-
-@app.route('/another')
-def another():
-  return render_template("another.html")
-
-
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test VALUES (NULL, ?)', name)
-  return redirect('/')
 
 
 @app.route('/login', methods=["GET", 'POST'])
@@ -169,11 +137,7 @@ def edit_profile(userid, profileid):
   if "POST" == request.method:
     try:
         bio = request.form['bio']
-    # edit_profile_query = application.edit_profile.edit_profile_info(userid, profileid, bio)
-    # edit_profile = g.conn.execute(edit_profile_query)
         g.conn.execute("UPDATE profiles SET bio = '{}' WHERE user_id = {} AND profile_id = {}".format(bio, userid, profileid))
-    # user = g.conn.execute("INSERT INTO users(first_name, middle_name, last_name, age, password) VALUES ('{}', '{}', '{}', {}, '{}') RETURNING user_id".format(first_name, middle_name, last_name, age, password))
-    # return redirect("/user_info/{}/user_profile/{}/{}".format(userid, profileid))
     except Exception as e:
         print(e)
         error = "Error updating profile. Try again!"
@@ -198,38 +162,6 @@ def user_profile(userid, profileid):
     return render_template('user_profile.html', info=user_info, profile=user_profile, posts=profile_posts)
 
 
-# @app.route('/register', methods=['POST'])
-# def add():
-#   name = request.form['name']
-#   g.conn.execute('INSERT INTO test VALUES (NULL, ?)', name)
-#   return redirect('/')
-
-
-# @app.route("/login", methods=['GET', 'POST'])
-# def login():
-#     if request.method == 'POST':
-#         try:
-#             username = request.form['user id']
-#             password = request.form['password']
-#             print(username, password)
-#             if not current_user.is_authenticated:
-#                 user = FridgeUser.get(loginid=username)
-#                 print(user)
-#                 if user and password == user.password:
-#                     login_user(user, remember=True)
-#                 else:
-#                     return render_template('login.html', error='Username or password incorrect!')
-        
-#         except Exception as e:
-#             print(e)
-#             return render_template('login.html', error='Server encountered an error. Please try again later.')
-
-#     if current_user.is_authenticated:
-#         return redirect("/dashboard")
-#     else:
-#         return render_template('login.html')
-
-# @app.route("/register", methods=['GET', 'POST'])
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -241,18 +173,12 @@ def index():
         password = request.form['password']
 
         user = g.conn.execute("INSERT INTO users(first_name, middle_name, last_name, age, password) VALUES ('{}', '{}', '{}', {}, '{}') RETURNING user_id".format(first_name, middle_name, last_name, age, password))
-        # db.session.execute("INSERT INTO login(uid, loginid, password) VALUES ({}, '{}', '{}')".format(user.first()[0], loginid, password))
-        # g.conn.commit()
-        print('user', user)
         return redirect("/user_info/{}".format(user.first()[0]))
 
       except Exception as e:
            print(e)
            error = "Error in sign up. Ensure to fill in all the required values and note that you must be 13years or above !"
            return render_template('index.html', error = error);
-
-        #     # g.conn.rollback()
-        #     return render_template('index.html', error='Server encountered an error. Please try again later.')
     else:
         return render_template('index.html')
 
@@ -296,27 +222,17 @@ def admin_page(id):
   return render_template('admin_page.html', info=user_info, locations=admin_page_locations, avg_age_of_friends=avg_age_of_friends, post_stats=post_stats, all_states=all_states, filter=filter)
 
 @app.route("/delete_post", methods=['GET'])
-# Todo: @login_required
 def delete():
     post_id = request.args.get('post_id', None)
     user_id = request.args.get('user_id', None)
     if post_id == None:
         return redirect("/user_info")
 
-# Todo: make sure the post belongs to the current user once current_user.id and login_required are implemented
-#    fridgeUser = db.session.execute("SELECT * from fridge where uid={} and fid={}".format(current_user.id, fid)).all()
-#    if len(fridgeUser) == 0:
-#        return redirect("/dashboard")
-
     try:
         query = text("DELETE from posts where post_id={} and user_id={};".format(post_id, user_id))
         g.conn.execute(query)
-        #Todo: implement logging query = "INSERT INTO log(fid, message) VALUES ({}, '{}')".format(fid, "User deleted a item in fridge {}: {}".format(fid, conid))
-        #db.session.execute(query)
-        #db.session.commit()
     except Exception as e:
         print(e)
-    #    db.session.rollback()
 
     return redirect("/user_info/{}".format(user_id))
 
