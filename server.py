@@ -83,7 +83,8 @@ def login_render():
     try:
       userid = request.form['user_id']
       password = request.form['password']
-      user = g.conn.execute("SELECT * FROM users WHERE user_id = {} AND password = '{}'".format(userid, password))
+      query = text("SELECT * FROM users WHERE user_id = :uid  AND password = :pw")
+      user = g.conn.execute(query, uid=userid, pw=password)
       # If admin user, redirect to admin page
       if userid == '0':
           return redirect("/admin_page/0")
@@ -107,7 +108,8 @@ def user_info(id):
     try:
         content = request.form['create_post']
         profile_id = request.form['profile_id']
-        user = g.conn.execute("INSERT INTO posts(user_id, profile_id, content) VALUES ({}, {}, '{}') RETURNING user_id".format(id, profile_id, content))
+        query = text("INSERT INTO posts(user_id, profile_id, content) VALUES (:uid, :pid, :cont) RETURNING user_id")
+        user = g.conn.execute(query,uid=id, pid=profile_id, cont=content)
     except Exception as e:
          print(e)
          error = "Creating a new post failed. Try again"
@@ -137,7 +139,8 @@ def edit_profile(userid, profileid):
   if "POST" == request.method:
     try:
         bio = request.form['bio']
-        g.conn.execute("UPDATE profiles SET bio = '{}' WHERE user_id = {} AND profile_id = {}".format(bio, userid, profileid))
+        query = text("UPDATE profiles SET bio = :biog WHERE user_id = :uid  AND profile_id = :pid")
+        g.conn.execute(query, biog=bio, uid=userid, pid=profileid)
     except Exception as e:
         print(e)
         error = "Error updating profile. Try again!"
@@ -172,7 +175,8 @@ def index():
         age = request.form['age']
         password = request.form['password']
 
-        user = g.conn.execute("INSERT INTO users(first_name, middle_name, last_name, age, password) VALUES ('{}', '{}', '{}', {}, '{}') RETURNING user_id".format(first_name, middle_name, last_name, age, password))
+        query = text("INSERT INTO users(first_name, middle_name, last_name, age, password) VALUES (:fn, :mn, :ln, :yrs, :pw) RETURNING user_id")
+        user = g.conn.execute(query, fn = first_name, mn = middle_name, ln = last_name, yrs = age, pw = password)
         return redirect("/user_info/{}".format(user.first()[0]))
 
       except Exception as e:
@@ -194,11 +198,11 @@ def admin_page(id):
                           FROM Users U,(SELECT I.user_id \
                                         FROM located_in I, locations L \
                                         WHERE I.zipcode = L.zipcode \
-                                              AND L.state_name = '{}')\
+                                        AND L.state_name = :input)\
                                         AS state_users \
                           WHERE state_users.user_id = U.user_id; \
-                          ".format(input_state))
-          cursor = g.conn.execute(query)
+                          ")
+          cursor = g.conn.execute(query, input=input_state)
           for c in cursor:
               filter["users"].append(c)
           filter["state"] = input_state
@@ -229,8 +233,8 @@ def delete():
     if post_id == None:
         return redirect("/user_info")
     try:
-        query = text("DELETE from posts where post_id={} and user_id={};".format(post_id, user_id))
-        g.conn.execute(query)
+        query = text("DELETE from posts where post_id=:pid and user_id=:uid;")
+        g.conn.execute(query, pid = post_id, uid = user_id)
     except Exception as e:
         print(e)
 
