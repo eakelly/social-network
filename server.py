@@ -118,23 +118,18 @@ def user_info(id):
 
   user_info_query = application.user_info.fetch_user_info(id)
   user_info = g.conn.execute(text(user_info_query), id = id)
-  print("I'm here1", user_info_query)
 
   user_friends_query = application.user_info.fetch_user_friends(id)
   user_friends = g.conn.execute(text(user_friends_query), id = id)
-  print("I'm here2", user_friends_query)
 
   user_posts_query = application.user_info.fetch_user_posts(id)
   user_posts = g.conn.execute(text(user_posts_query), id = id)
-  print("I'm here3", user_posts_query)
 
   user_locations_query = application.user_info.fetch_user_locations(id)
   user_locations = g.conn.execute(text(user_locations_query), id=id)
-  print("I'm here4", user_locations_query)
 
   user_profiles_query = application.user_info.fetch_user_profiles(id)
   user_profiles = g.conn.execute(text(user_profiles_query), id=id)
-  print("I'm here5", user_profiles_query)
 
   return render_template('user_info.html', info=user_info, friends=user_friends, posts=user_posts, locations=user_locations, profiles=user_profiles, error = error)
 
@@ -160,15 +155,12 @@ def user_profile(userid, profileid):
   if "GET" == request.method:
     user_info_query = application.user_profile.fetch_user_info(userid)
     user_info = g.conn.execute(text(user_info_query), userid=userid)
-    print("I'm here6", user_info_query)
 
     user_profile_query = application.user_profile.fetch_profile(userid, profileid)
     user_profile = g.conn.execute(text(user_profile_query), userid=userid, profileid=profileid)
-    print("I'm here7", user_profile_query)
 
     profile_posts_query = application.user_profile.fetch_profile_posts(userid, profileid)
     profile_posts = g.conn.execute(text(profile_posts_query), userid=userid, profileid=profileid)
-    print("I'm here8", profile_posts_query)
 
     return render_template('user_profile.html', info=user_info, profile=user_profile, posts=profile_posts)
 
