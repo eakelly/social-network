@@ -265,7 +265,14 @@ def admin_page(id):
 
     admin_page_locations_query = application.admin_page.fetch_locations()
     admin_page_locations = g.conn.execute(admin_page_locations_query)
-    return render_template('admin_page.html', info=user_info, locations=admin_page_locations)
+
+    avg_age_of_friends_query = application.admin_page.get_avg_age_of_friends()
+    avg_age_of_friends = g.conn.execute(avg_age_of_friends_query)
+
+    post_stats_query = application.admin_page.get_post_stats()
+    post_stats = g.conn.execute(post_stats_query)
+
+    return render_template('admin_page.html', info=user_info, locations=admin_page_locations, avg_age_of_friends=avg_age_of_friends, post_stats=post_stats)
 
 
 @app.route("/delete_post", methods=['GET'])
