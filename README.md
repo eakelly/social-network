@@ -2,6 +2,13 @@
 
 ## Team Members: Elizabeth Kelly and Krithika Prakash
 
+## Setup
+You will need to store the Postgres username and password in a `config/config.json` file. You can do so by running the command below, replacing `<username>` and `<password>` with the provided credentials in the project submission.
+```
+echo '{"user":"<username>", "password":"<password>"}' >> config/config.json
+```
+
+
 ## Entities/Relationships/Operations implemented:
 ### Users:
 - CREATE: Users can signup using the provided form. First name, Last name and age are required inputs. Users must be at least 13 years old. Any missing required field will result in an error being displayed.
