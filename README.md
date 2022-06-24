@@ -32,7 +32,7 @@ echo '{"user":"<username>", "password":"<password>"}' >> config/config.json
 - READ: Each user profile, displays the list of users who are their friends.
 
 ## SQL Injection Prevention
-	We have implemented parameter binding to prevent this in both form and url parameters.
+We have implemented parameter substitution with text wrapping using `sqlalchemy.sql.text` to prevent SQL Injection attacks in both `Form` and `URL` parameters.
 
 ## Entities/Relationships/Operations not implemented:
 We have implemented all the entities and relationships with atleast one operation. However we haven’t yet implemented all the CRUD operations for all the entities. Some of the operations such as remove user, add new location, add new friends, etc,... do not have an interface in the web application. 
