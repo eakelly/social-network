@@ -87,7 +87,7 @@ def login_render():
       user = g.conn.execute(query, uid=userid, pw=password)
       # If admin user, redirect to admin page
       if userid == '0':
-          return redirect("/admin_page/0")
+          return redirect("/admin_page/{}".format(user.first()[0]))
       else:
         return redirect("/user_info/{}".format(user.first()[0]))
 
